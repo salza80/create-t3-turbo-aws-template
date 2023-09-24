@@ -1,0 +1,29 @@
+{
+  "extends": "@acme/tsconfig/base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json"
+  },
+  "include": ["."],
+  "exclude": ["node_modules"]
+}
+
+// {
+//     "extends": "@tsconfig/node18/tsconfig.json",
+//     "compilerOptions": {
+//       "module": "esnext",
+//       "moduleResolution": "node",
+//       "baseUrl": ".",
+//       "paths": {
+//         "@my-sst-app/core/*": ["../core/src/*"]
+//       }
+//     }
+//   }
+
+// {
+//     "extends": "@tsconfig/node18/tsconfig.json",
+//     "exclude": ["packages"],
+//     "compilerOptions": {
+//       "module": "esnext",
+//       "moduleResolution": "node"
+//     }
+//   }

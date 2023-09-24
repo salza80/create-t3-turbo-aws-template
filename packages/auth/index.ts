@@ -1,56 +1,49 @@
-import Discord from "@auth/core/providers/discord";
 import type { DefaultSession } from "@auth/core/types";
-import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import NextAuth from "next-auth";
-
-import { db, tableCreator } from "@acme/db";
+import CognitoProvider from "next-auth/providers/cognito";
 
 import { env } from "./env.mjs";
+
+declare module "next-auth" {
+  interface Session {
+    user: DefaultSession["user"] & { accessToken: string };
+  }
+}
 
 export type { Session } from "next-auth";
 
 // Update this whenever adding new providers so that the client can
-export const providers = ["discord"] as const;
+export const providers = ["cognito"] as const;
 export type OAuthProviders = (typeof providers)[number];
-
-declare module "next-auth" {
-  interface Session {
-    user: {
-      id: string;
-    } & DefaultSession["user"];
-  }
-}
 
 export const {
   handlers: { GET, POST },
   auth,
   CSRF_experimental,
 } = NextAuth({
-  adapter: DrizzleAdapter(db, tableCreator),
   providers: [
-    Discord({
-      clientId: env.DISCORD_CLIENT_ID,
-      clientSecret: env.DISCORD_CLIENT_SECRET,
+    CognitoProvider({
+      clientId: env.COGNITO_CLIENT_ID,
+      issuer: env.COGNITO_ISSUER,
+      client: {
+        token_endpoint_auth_method: "none",
+      },
     }),
   ],
   callbacks: {
-    session: ({ session, user }) => ({
+    jwt: ({ token, account }) => {
+      if (account) {
+        token.accessToken = account.access_token;
+      }
+      return token;
+    },
+    session: ({ session, token }) => ({
       ...session,
       user: {
         ...session.user,
-        id: user.id,
+        accessToken: token.accessToken,
       },
     }),
-
-    // @TODO - if you wanna have auth on the edge
-    // jwt: ({ token, profile }) => {
-    //   if (profile?.id) {
-    //     token.id = profile.id;
-    //     token.image = profile.picture;
-    //   }
-    //   return token;
-    // },
-
     // @TODO
     // authorized({ request, auth }) {
     //   return !!auth?.user

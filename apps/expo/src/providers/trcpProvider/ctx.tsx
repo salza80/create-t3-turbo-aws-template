@@ -1,18 +1,22 @@
-import React from "react";
+import React, { useCallback } from "react";
 import Constants from "expo-constants";
+import type { UseQueryResult } from "@tanstack/react-query";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
 import superjson from "superjson";
 
-import type { AppRouter } from "@acme/api";
+import type { AppRouter } from "@acme/api2";
+
+import { useSession } from "~/providers/sessionProvider";
+import config from "../../utils/config";
 
 /**
  * A set of typesafe hooks for consuming your API.
  */
 export const api = createTRPCReact<AppRouter>();
-export { type RouterInputs, type RouterOutputs } from "@acme/api";
-
+export { type RouterInputs, type RouterOutputs } from "@acme/api2";
+export { type UseQueryResult };
 /**
  * Extend this function when going to production by
  * setting the baseUrl to your production API URL.
@@ -36,34 +40,39 @@ const getBaseUrl = () => {
       "Failed to get localhost. Please point to your production server.",
     );
   }
-  return `http://${localhost}:3000`;
+  return config.COGNITO_API_URL;
+  //return `http://${localhost}:3000`;
 };
 
 /**
  * A wrapper for your app that provides the TRPC context.
- * Use only in _app.tsx
  */
 
 export function TRPCProvider(props: { children: React.ReactNode }) {
   const [queryClient] = React.useState(() => new QueryClient());
-  const [trpcClient] = React.useState(() =>
-    api.createClient({
+  const { session } = useSession();
+
+  const createClient = useCallback(() => {
+    return api.createClient({
       transformer: superjson,
       links: [
         httpBatchLink({
-          url: `${getBaseUrl()}/api/trpc`,
+          url: `${getBaseUrl()}/api`,
           headers() {
             const headers = new Map<string, string>();
             headers.set("x-trpc-source", "expo-react");
+            if (session) {
+              headers.set("idtoken", session.idToken);
+              headers.set("authorization", session.accessToken);
+            }
             return Object.fromEntries(headers);
           },
         }),
       ],
-    }),
-  );
-
+    });
+  }, [session]);
   return (
-    <api.Provider client={trpcClient} queryClient={queryClient}>
+    <api.Provider client={createClient()} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
         {props.children}
       </QueryClientProvider>

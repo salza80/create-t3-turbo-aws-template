@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
+import { auth } from "@acme/auth";
+
+//import { authOptions } from "../app/api/auth/[...nextauth]/route"
+
 import "~/styles/globals.css";
 
 import { headers } from "next/headers";
 
-import { TRPCReactProvider } from "./providers";
+import { NextAuthSessionProvider, TRPCReactProvider } from "./providers";
 
 const fontSans = Inter({
   subsets: ["latin"],
@@ -28,13 +32,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Layout(props: { children: React.ReactNode }) {
+export default async function Layout(props: { children: React.ReactNode }) {
+  const session = await auth();
   return (
     <html lang="en">
       <body className={["font-sans", fontSans.variable].join(" ")}>
-        <TRPCReactProvider headers={headers()}>
-          {props.children}
-        </TRPCReactProvider>
+        <NextAuthSessionProvider session={session}>
+          <TRPCReactProvider headers={headers()}>
+            {props.children}
+          </TRPCReactProvider>
+        </NextAuthSessionProvider>
       </body>
     </html>
   );

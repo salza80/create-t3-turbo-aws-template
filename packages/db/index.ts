@@ -1,18 +1,20 @@
-import { Client } from "@planetscale/database";
-import { drizzle } from "drizzle-orm/planetscale-serverless";
+import { DynamoDB } from "./client";
+import { UserModel } from "./models/User";
 
-import * as auth from "./schema/auth";
-import * as post from "./schema/post";
-
-export const schema = { ...auth, ...post };
-
-export { mySqlTable as tableCreator } from "./schema/_table";
-
-export * from "drizzle-orm";
-
-export const db = drizzle(
-  new Client({
-    url: process.env.DATABASE_URL,
-  }).connection(),
-  { schema },
-);
+class ModelsFactory {
+  private static userModel: UserModel;
+  public static getUserModel(): UserModel {
+    if (!ModelsFactory.userModel) {
+      const UserTable = process.env.TABLE_USERS;
+      if (!UserTable) {
+        throw new Error("UserTable name not defined");
+      }
+      ModelsFactory.userModel = new UserModel(
+        DynamoDB.getInstance(),
+        UserTable,
+      );
+    }
+    return ModelsFactory.userModel;
+  }
+}
+export { ModelsFactory };

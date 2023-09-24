@@ -6,13 +6,15 @@
  * tl;dr - this is where all the tRPC server stuff is created and plugged in.
  * The pieces you will need to use are documented accordingly near the end
  */
+import { clientCallTypeToProcedureType } from "@trpc/client";
 import { initTRPC, TRPCError } from "@trpc/server";
+import { CognitoJwtVerifier } from "aws-jwt-verify";
+import type { CognitoJwtPayload } from "aws-jwt-verify/jwt-model";
+import type { APIGatewayProxyEventV2 } from "aws-lambda";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { auth } from "@acme/auth";
-import type { Session } from "@acme/auth";
-import { db } from "@acme/db";
+import ServicesFactory from "@acme/services";
 
 /**
  * 1. CONTEXT
@@ -23,9 +25,43 @@ import { db } from "@acme/db";
  * processing a request
  *
  */
+
 interface CreateContextOptions {
-  session: Session | null;
+  event: APIGatewayProxyEventV2;
+  apiVersion: string;
 }
+
+interface UserCtx {
+  sub: string;
+  emailAddress: string;
+  name: string;
+}
+
+interface CreateInnerContext {
+  servicesFactory: typeof ServicesFactory;
+  event: APIGatewayProxyEventV2;
+  apiVersion: string;
+  user: UserCtx;
+}
+
+const verifyToken = async (
+  token: string | null | undefined,
+  tokenUse: "id" | "access",
+): Promise<CognitoJwtPayload | null> => {
+  try {
+    const USER_POOL_ID = process.env.COGNITO_USER_POOL_ID ?? "";
+    const CLIENT_ID = process.env.COGNITO_CLIENT_ID ?? "";
+    const verifier = CognitoJwtVerifier.create({
+      userPoolId: USER_POOL_ID,
+      tokenUse,
+      clientId: CLIENT_ID,
+    });
+    const payload = await verifier.verify(token ?? "");
+    return payload;
+  } catch {
+    return null;
+  }
+};
 
 /**
  * This helper generates the "internals" for a tRPC context. If you need to use
@@ -36,10 +72,31 @@ interface CreateContextOptions {
  * - trpc's `createSSGHelpers` where we don't have req/res
  * @see https://create.t3.gg/en/usage/trpc#-servertrpccontextts
  */
-const createInnerTRPCContext = (opts: CreateContextOptions) => {
+const createInnerTRPCContext = async (
+  opts: CreateContextOptions,
+): Promise<CreateInnerContext> => {
+  const authTokenPayload = await verifyToken(
+    opts?.event?.headers?.authorization,
+    "access",
+  );
+  const idTokenPayload = await verifyToken(opts?.event?.headers?.idtoken, "id");
+  console.log("idtoken");
+  console.log(opts?.event?.headers?.idtoken);
+  console.log(idTokenPayload);
+  console.log("authtoken");
+  console.log(opts?.event?.headers?.authorization);
+  console.log(authTokenPayload);
   return {
-    session: opts.session,
-    db,
+    event: opts.event,
+    apiVersion: opts.apiVersion,
+    user: {
+      sub: authTokenPayload?.sub ?? "",
+      emailAddress: idTokenPayload?.email
+        ? JSON.stringify(idTokenPayload?.email)
+        : "",
+      name: idTokenPayload?.name ? JSON.stringify(idTokenPayload?.name) : "",
+    },
+    servicesFactory: ServicesFactory || null,
   };
 };
 
@@ -48,17 +105,17 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
  * process every request that goes through your tRPC endpoint
  * @link https://trpc.io/docs/context
  */
-export const createTRPCContext = async (opts: {
-  req?: Request;
-  auth?: Session;
+export const createTRPCContext = (opts: {
+  event: APIGatewayProxyEventV2;
+  apiVersion: string;
 }) => {
-  const session = opts.auth ?? (await auth());
-  const source = opts.req?.headers.get("x-trpc-source") ?? "unknown";
+  //const source = opts.req?.headers.get("x-trpc-source") ?? "unknown";
 
-  console.log(">>> tRPC Request from", source, "by", session?.user);
+  // console.log(">>> tRPC Request from", "by", opts.event);
 
   return createInnerTRPCContext({
-    session,
+    event: opts.event,
+    apiVersion: opts.apiVersion,
   });
 };
 
@@ -109,13 +166,13 @@ export const publicProcedure = t.procedure;
  * procedure
  */
 const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
-  if (!ctx.session?.user) {
+  if (!ctx?.user?.sub) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
   return next({
     ctx: {
-      // infers the `session` as non-nullable
-      session: { ...ctx.session, user: ctx.session.user },
+      // infers the `user` as non-nullable
+      user: { ...ctx.user },
     },
   });
 });
