@@ -1,3 +1,37 @@
+# create-t3-turbo-aws-template 
+
+This template was created with create-t3 app https://create.t3.gg/ |  https://github.com/t3-oss/create-t3-app
+
+This Template modifies the original T3 Turbo template modified to use AWS services:
+
+From the original template it keeps:
+- tRPC
+- Tailwind CSS
+- Typescript
+- NextAuth.js
+
+Adds the following for AWS integration:
+
+- fully deployed via AWS - (instead of vercel)
+- API Gateway (instead of hosting the trcp API in nextjs)
+- tRCP hosted in an aws lambda
+- dynamoDb (instead of Prisma and postgres/mysql)
+- cognito for User Authentication
+- adds register / login / logout to Expo Application
+- updates next-auth config to use Cognito for next.js site
+- SST: uses [SST](https://sst.dev/) to deploy the API / DynamoDb Table / Cognito
+
+- SST can be used for development of your API. After deploying the aws gateway, your local expo / nextjs application calls the API hosted in the cloud, and uses the SST feature that lets you test and debug your Lambda locally by diverting the api call and invoking the lambda locally on your machine! https://docs.sst.dev/live-lambda-development
+
+1. Just set up AWS CLI: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+2. run ```pnpm install ```
+3. run ```pnpm run dev```
+4. this will do the initial setup of the sst / cdk which may take a while but only needs to be done once. Then it will deploy the api-gateway. Take the outputs printed in the console after successful deploy, and add them to your env varialbes / expo environment variables.
+5. run ```pnpm run dev``` again
+ 
+----ORIGINAL DOCS BELOW NEED UPDATING ---
+
+
 # create-t3-turbo
 
 > **Note**
@@ -16,6 +50,7 @@ npx create-turbo@latest -e https://github.com/t3-oss/create-t3-turbo
 ```
 
 ## About
+TO_DO - update project structure changes
 
 Ever wondered how to migrate your T3 application into a monorepo? Stop right here! This is the perfect starter repo to get you running with the perfect stack!
 
@@ -114,21 +149,7 @@ To add a new package, simply run `pnpm turbo gen init` in the monorepo root. Thi
 
 The generator sets up the `package.json`, `tsconfig.json` and a `index.ts`, as well as configures all the necessary configurations for tooling around your package such as formatting, linting and typechecking. When the package is created, you're ready to go build out the package.
 
-## FAQ
 
-### Can you include Solito?
-
-No. Solito will not be included in this repo. It is a great tool if you want to share code between your Next.js and Expo app. However, the main purpose of this repo is not the integration between Next.js and Expo — it's the codesplitting of your T3 App into a monorepo. The Expo app is just a bonus example of how you can utilize the monorepo with multiple apps but can just as well be any app such as Vite, Electron, etc.
-
-Integrating Solito into this repo isn't hard, and there are a few [offical templates](https://github.com/nandorojo/solito/tree/master/example-monorepos) by the creators of Solito that you can use as a reference.
-
-### What auth solution should I use instead of Next-Auth.js for Expo?
-
-I've left this kind of open for you to decide. Some options are [Clerk](https://clerk.dev), [Supabase Auth](https://supabase.com/docs/guides/auth), [Firebase Auth](https://firebase.google.com/docs/auth/) or [Auth0](https://auth0.com/docs). Note that if you're dropping the Expo app for something more "browser-like", you can still use Next-Auth.js for those. [See an example in a Plasmo Chrome Extension here](https://github.com/t3-oss/create-t3-turbo/tree/chrome/apps/chrome).
-
-The Clerk.dev team even made an [official template repository](https://github.com/clerkinc/t3-turbo-and-clerk) integrating Clerk.dev with this repo.
-
-During Launch Week 7, Supabase [announced their fork](https://supabase.com/blog/launch-week-7-community-highlights#t3-turbo-x-supabase) of this repo integrating it with their newly announced auth improvements. You can check it out [here](https://github.com/supabase-community/create-t3-turbo).
 
 ### Does this pattern leak backend code to my client applications?
 
@@ -145,19 +166,9 @@ If you need to share runtime code between the client and server, such as input v
 > **Note**
 > Please note that the Next.js application with tRPC must be deployed in order for the Expo app to communicate with the server in a production environment.
 
-#### Deploy to Vercel
+#### Deploy to AWS
 
-Let's deploy the Next.js application to [Vercel](https://vercel.com). If you've never deployed a Turborepo app there, don't worry, the steps are quite straightforward. You can also read the [official Turborepo guide](https://vercel.com/docs/concepts/monorepos/turborepo) on deploying to Vercel.
-
-1. Create a new project on Vercel, select the `apps/nextjs` folder as the root directory and apply the following build settings:
-
-   <img width="927" alt="Vercel deployment settings" src="https://user-images.githubusercontent.com/11340449/201974887-b6403a32-5570-4ce6-b146-c486c0dbd244.png">
-
-   > The install command filters out the expo package and saves us a few seconds (and cache size) of dependency installation. The build command utilizes Turbo to build the application.
-
-2. Add your `DATABASE_URL` environment variable.
-
-3. Done! Your app should successfully deploy. Assign your domain and use that instead of `localhost` for the `url` in the Expo app so that your Expo app can communicate with your backend when you are not in development.
+TO_DO
 
 ### Expo
 
