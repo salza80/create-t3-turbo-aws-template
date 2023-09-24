@@ -1,5 +1,6 @@
 # create-t3-turbo-aws-template 
 
+## Description
 This template was created with create-t3 app https://create.t3.gg/ |  https://github.com/t3-oss/create-t3-app
 
 This Template modifies the original T3 Turbo template modified to use AWS services:
