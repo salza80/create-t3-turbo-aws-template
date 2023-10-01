@@ -97,10 +97,12 @@ export function SessionProvider({ children }: SessionProviderProps) {
         setSession({ refreshToken, accessToken, idToken });
         return <Redirect href="/(tabs)/home" />;
       },
-      onFailure: (err) => {
-        if (err) {
-          return Alert.alert("Error", err.message || "error signing in");
+      onFailure: (error: unknown) => {
+        let message = "error signing in";
+        if (error instanceof Error) {
+          message = error.message;
         }
+        return Alert.alert("Error", message);
       },
     });
   };
@@ -108,7 +110,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
   const register = (email: string, name: string, password: string) => {
     const attributeList: CognitoUserAttribute[] = [];
     attributeList.push(new CognitoUserAttribute({ Name: "name", Value: name }));
-    cognitoPool.signUp(email, password, attributeList, [], (err, data) => {
+    cognitoPool.signUp(email, password, attributeList, [], (err) => {
       if (err) {
         switch (err.name) {
           case "InvalidParameterException":

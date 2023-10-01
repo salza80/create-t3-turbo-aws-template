@@ -15,24 +15,24 @@
     "console": "sst console"
   },
   "dependencies": {
-    "aws-cdk-lib": "2.91.0",
-    "@acme/api": "^0.1.0"
+    "@acme/api": "^0.1.0",
+    "aws-cdk-lib": "2.91.0"
   },
   "devDependencies": {
-    "@acme/services": "^0.1.0",
     "@acme/eslint-config": "^0.2.0",
     "@acme/prettier-config": "^0.1.0",
+    "@acme/services": "^0.1.0",
     "@acme/tailwind-config": "^0.1.0",
     "@acme/tsconfig": "^0.1.0",
+    "@tsconfig/node18": "^18.2.1",
+    "@types/aws-lambda": "^8.10.120",
+    "@types/node": "^20.6.0",
+    "constructs": "10.2.69",
     "eslint": "^8.47.0",
     "prettier": "^3.0.2",
+    "sst": "^2.24.27",
     "tailwindcss": "3.3.2",
-    "typescript": "^5.1.6",
-    "constructs": "10.2.69",
-    "@tsconfig/node18": "^18.2.1",
-    "@types/node": "^20.6.0",
-    "@types/aws-lambda": "^8.10.120",
-    "sst": "^2.24.27"
+    "typescript": "^5.1.6"
   },
   "eslintConfig": {
     "root": true,

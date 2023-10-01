@@ -1,6 +1,4 @@
-import { View, Text } from "react-native";
-
-import { useUser } from "~/providers/userProvider";
+import { Text, View } from "react-native";
 
 export default function Home() {
   return (

@@ -108,7 +108,7 @@ function TabBarIcon(props: {
 }) {
   return (
     <FontAwesome
-      size={props.size || 26}
+      size={props.size ?? 26}
       style={{ marginBottom: -3 }}
       {...props}
     />

@@ -6,7 +6,6 @@
  * tl;dr - this is where all the tRPC server stuff is created and plugged in.
  * The pieces you will need to use are documented accordingly near the end
  */
-import { clientCallTypeToProcedureType } from "@trpc/client";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { CognitoJwtVerifier } from "aws-jwt-verify";
 import type { CognitoJwtPayload } from "aws-jwt-verify/jwt-model";
@@ -80,12 +79,6 @@ const createInnerTRPCContext = async (
     "access",
   );
   const idTokenPayload = await verifyToken(opts?.event?.headers?.idtoken, "id");
-  console.log("idtoken");
-  console.log(opts?.event?.headers?.idtoken);
-  console.log(idTokenPayload);
-  console.log("authtoken");
-  console.log(opts?.event?.headers?.authorization);
-  console.log(authTokenPayload);
   return {
     event: opts.event,
     apiVersion: opts.apiVersion,

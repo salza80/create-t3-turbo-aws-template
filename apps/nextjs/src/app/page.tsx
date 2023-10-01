@@ -1,11 +1,12 @@
-import { Suspense } from "react";
+// import { Suspense } from "react";
 
 import { AuthShowcase } from "./_components/auth-showcase";
-import {
-  CreatePostForm,
-  PostCardSkeleton,
-  PostList,
-} from "./_components/posts";
+
+// import {
+//   CreatePostForm,
+//   PostCardSkeleton,
+//   PostList,
+// } from "./_components/posts";
 
 export const runtime = "edge";
 
@@ -18,7 +19,7 @@ export default function HomePage() {
         </h1>
         <AuthShowcase />
 
-        <CreatePostForm />
+        {/* <CreatePostForm />
         <div className="h-[40vh] w-full max-w-2xl overflow-y-scroll">
           <Suspense
             fallback={
@@ -31,7 +32,7 @@ export default function HomePage() {
           >
             <PostList />
           </Suspense>
-        </div>
+        </div> */}
       </div>
     </main>
   );

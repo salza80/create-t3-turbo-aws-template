@@ -1,8 +1,6 @@
-import { z } from "zod";
-
 import type { User } from "@acme/services";
 
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const userRouter = createTRPCRouter({
   me: protectedProcedure.query(async ({ ctx }): Promise<User | null> => {
