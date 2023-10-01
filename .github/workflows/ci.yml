@@ -50,8 +50,11 @@ jobs:
       - name: Format check
         run: pnpm turbo format
 
-      - name: lint and typecheck
-        run: pnpm turbo lint typecheck
+      - name: lint
+        run: pnpm turbo lint
+
+      - name: typecheck
+        run: pnpm turbo typecheck
 
       - name: Build
         run: pnpm turbo build
