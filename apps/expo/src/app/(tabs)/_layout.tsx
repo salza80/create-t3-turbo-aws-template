@@ -34,7 +34,8 @@ export default function TabsLayout() {
           },
           headerShown: false,
         }}
-        tabBar={(props) =>
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        tabBar={(props: any) =>
           Platform.OS === "ios" ? (
             <BlurView
               style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}

@@ -6,7 +6,7 @@ import { httpBatchLink } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
 import superjson from "superjson";
 
-import type { AppRouter } from "@acme/api2";
+import type { AppRouter } from "@acme/api";
 
 import { useSession } from "~/providers/sessionProvider";
 import config from "../../utils/config";
@@ -15,7 +15,7 @@ import config from "../../utils/config";
  * A set of typesafe hooks for consuming your API.
  */
 export const api = createTRPCReact<AppRouter>();
-export { type RouterInputs, type RouterOutputs } from "@acme/api2";
+export { type RouterInputs, type RouterOutputs } from "@acme/api";
 export { type UseQueryResult };
 /**
  * Extend this function when going to production by

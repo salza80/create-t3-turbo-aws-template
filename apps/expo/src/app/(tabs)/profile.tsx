@@ -4,7 +4,7 @@ import { useUser } from "../../providers/userProvider";
 
 export default function Profile() {
   const response = useUser();
-  let userData = undefined;
+  let userData;
   if (response?.isSuccess) {
     userData = response.data;
   }
