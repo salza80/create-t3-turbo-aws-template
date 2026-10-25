@@ -1,3 +1,5 @@
+# OUTDATED - Replaced with SST4 template + OpenNext updates with many improvements + security improvements on Auth/cognito integration. 
+
 # create-t3-turbo-aws-template 
 
 This template was created with create-t3 app https://create.t3.gg/ |  https://github.com/t3-oss/create-t3-app
